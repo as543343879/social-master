@@ -25,4 +25,6 @@ public class UserDetailsServiceImpl implements SocialUserDetailsService {
                 true, true, true, true,
                 AuthorityUtils.commaSeparatedStringToAuthorityList(""));
     }
+
+
 }

@@ -5,6 +5,7 @@ import com.share.social.properties.SecurityConstants;
 import com.share.social.properties.SocialProperties;
 import com.share.social.result.ResponseMessage;
 import com.share.social.result.Result;
+import com.share.social.service.UtilsServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -16,6 +17,7 @@ import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.connect.web.ConnectSupport;
+import org.springframework.social.connect.web.HttpSessionSessionStrategy;
 import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.social.oauth2.OAuth2Operations;
 import org.springframework.social.oauth2.OAuth2Parameters;
@@ -31,7 +33,7 @@ import org.springframework.web.context.request.NativeWebRequest;
  */
 @RestController
 @Slf4j
-@Api(description = "三方登录")
+@Api(tags = "三方登录")
 public class ConnectRestController implements InitializingBean {
     @Autowired
     SocialProperties socialProperties;
@@ -45,12 +47,29 @@ public class ConnectRestController implements InitializingBean {
     private String applicationUrl;
     @Autowired
     AppSingUpUtils appSingUpUtils;
-
+    @Autowired
+    UtilsServiceImpl utilsService;
     public void setApplicationUrl(String applicationUrl) {
         this.applicationUrl = applicationUrl;
     }
 
+
+
+    @GetMapping("/socialStatus")
+    @ResponseBody
+    @ApiOperation(httpMethod = "GET", value = "获取绑定状态")
+    public ResponseMessage  getStatus(@ApiParam(name = "userId") @RequestParam String userId) {
+        try{
+            return Result.success(utilsService.getStatus(userId));
+        }catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error(e.getMessage());
+        }
+    }
+
+
     @ApiOperation(httpMethod = "DELETE", value = "解绑")
+    @ResponseBody
     @RequestMapping(value = {"/auth/remove"}, method = {RequestMethod.DELETE})
     public ResponseMessage remove(@RequestParam String userId, @RequestParam String providerId) {
         appSingUpUtils.removeConnections(userId,providerId);
@@ -58,6 +77,7 @@ public class ConnectRestController implements InitializingBean {
     }
 
     @GetMapping(SecurityConstants.DEFAULT_SOCIAL_AUTHORIZEURL)
+    @ResponseBody
     @ApiOperation(httpMethod = "GET", value = "获取三方登录授权链接")
     public ResponseMessage  authorizeUrl(@ApiParam(name = "providerId",example = "qq/weixin") @RequestParam String providerId, @ApiParam("前端回调url") @RequestParam String redirectUri, NativeWebRequest request) {
         try{
@@ -71,6 +91,9 @@ public class ConnectRestController implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        if(this.sessionStrategy == null) {
+            sessionStrategy = new HttpSessionSessionStrategy();
+        }
         this.connectSupport = new ConnectSupport(this.sessionStrategy);
         if (this.applicationUrl != null) {
             this.connectSupport.setApplicationUrl(this.applicationUrl);

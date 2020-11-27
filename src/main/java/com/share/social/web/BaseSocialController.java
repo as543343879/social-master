@@ -2,7 +2,6 @@
 package com.share.social.web;
 
 import com.share.social.support.SocialUserInfo;
-import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
 
 

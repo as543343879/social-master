@@ -1,11 +1,11 @@
 package com.share.social.weixin.config;
 
-import com.share.social.weixin.connect.WeixinConnectionFactory;
 import com.share.social.properties.SocialProperties;
 import com.share.social.properties.WeixinProperties;
+import com.share.social.social.SocialAutoConfigurerAdapter;
+import com.share.social.weixin.connect.WeixinConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.social.SocialAutoConfigurerAdapter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.social.connect.ConnectionFactory;
 

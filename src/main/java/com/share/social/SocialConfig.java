@@ -4,6 +4,7 @@ package com.share.social;
 import com.share.social.properties.SocialProperties;
 import com.share.social.support.PcSpringSocialConfigurer;
 import com.share.social.support.SocialAuthenticationFilterPostProcessor;
+import com.share.social.utils.SocialDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -22,8 +23,6 @@ import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.social.security.SpringSocialConfigurer;
 
-import javax.sql.DataSource;
-
 /**
  * 社交登录配置主类
  *
@@ -33,9 +32,11 @@ import javax.sql.DataSource;
 @EnableSocial
 public class SocialConfig extends SocialConfigurerAdapter {
 
+//	@Autowired
+//	@Qualifier("dataSource") //配置中定义的名字
+//	private DataSource dataSource;
 	@Autowired
-	private DataSource dataSource;
-
+	SocialDataSource socialDataSource;
 	@Autowired
 	private SocialProperties socialProperties;
 
@@ -67,7 +68,7 @@ public class SocialConfig extends SocialConfigurerAdapter {
 
 	@Bean
 	public UsersConnectionRepository usersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
-		JdbcUsersConnectionRepository repository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, Encryptors.noOpText());
+		JdbcUsersConnectionRepository repository = new JdbcUsersConnectionRepository(socialDataSource.socialDataSource() , connectionFactoryLocator, Encryptors.noOpText());
 		if(StringUtils.isNotEmpty(socialProperties.getTablePref())){
 			repository.setTablePrefix(socialProperties.getTablePref());
 		}
